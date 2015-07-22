@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Drop Down Options in List Fields for Gravity Forms
-Description: Gives the ability to add drop down (select) fields inside of a list field column
-Version: 1.1
+Plugin Name: Drop Down List Field for Gravity Forms
+Description: Gives the option of adding a drop down (select) list to a list field column
+Version: 1.2
 Author: Adrian Gordon
 Author URI: http://www.itsupportguides.com 
 License: GPL2
@@ -30,13 +30,16 @@ if (!class_exists('ITSG_GF_List_Field_Drop_Down')) {
          * Changes column field if 'date field' option is ticked. Adds 'datepicker' class.
          */
 		public static function change_column_content($input_info, $field, $column, $value, $form_id){
-			foreach($field["choices"] as $choice){
-				if ($column == $choice["text"]  &&  $choice["isDropDown"] == true) {
-					$isDropDownChoices = $choice["isDropDownChoices"];
-					$options = explode(",", $isDropDownChoices);
-					//array_unshift($options,'');  // add default blank option -- DISABLED in version 1.1 to match Gravity Forms drop down field behaviour
-					$options = array_map('trim', $options); // remove blank spaces at start or end of each option
-					return array("type" => "select", "choices" => $options);
+			$has_columns = is_array($field["choices"]);
+			if ($has_columns) {
+				foreach($field["choices"] as $choice){
+					if ($column == $choice["text"]  &&  ( isset( $choice["isDropDown"] ) && $choice["isDropDown"] == true) && (isset( $choice["isDropDownChoices"] ) )) {
+						$isDropDownChoices = $choice["isDropDownChoices"];
+						$options = explode(",", $isDropDownChoices);
+						//array_unshift($options,'');  // add default blank option -- DISABLED in version 1.1 to match Gravity Forms drop down field behaviour
+						$options = array_map('trim', $options); // remove blank spaces at start or end of each option
+						return array("type" => "select", "choices" => $options);
+					}
 				}
 			}
 		}
@@ -49,11 +52,11 @@ if (!class_exists('ITSG_GF_List_Field_Drop_Down')) {
 		<script type='text/javascript'>
 		// ADD drop down options to list field in form editor - hooks into existing GetFieldChoices function.
 	(function (w){
-			var GetFieldChoicesOld = w.GetFieldChoices;
+			var GetFieldChoicesOldDD = w.GetFieldChoices;
 			
 			w.GetFieldChoices = function (){
 
-				str = GetFieldChoicesOld.apply(this, [field]);
+				str = GetFieldChoicesOldDD.apply(this, [field]);
 				
 				if(field.choices == undefined)
 				return "";
@@ -68,12 +71,12 @@ if (!class_exists('ITSG_GF_List_Field_Drop_Down')) {
 				str += "<p><strong>Drop Down fields</strong><br>Place a tick next to the field to make it a drop down field. Enter the drop down options into the box as comma-separated-values, e.g. 'Mr,Mrs,Miss,Ms'.</p>";
 				}
 				str += "<div>";
-				 str += "<input type='checkbox' name='choice_dropdown' id='" + inputType + "_choice_dropdown_" + i + "' " + isDropDown + " onclick=\"SetFieldChoiceDD('" + inputType + "', " + i + ");itsg_gf_list_drop_down_function();\" /> ";
+				 str += "<input type='checkbox' name='choice_dropdown' id='" + inputType + "_choice_dropdown_" + i + "' " + isDropDown + " onclick=\"SetFieldChoice2('" + inputType + "', " + i + ");itsg_gf_list_drop_down_function();\" /> ";
 				 str += "	<label class='inline' for='"+ inputType + "_choice_dropdown_" + i + "'>"+value+" - Make Drop Down</label>";
 				 str += "<div style='display:none' class='itsg_dropdown'>";
 				 str += "<label style='display: inline; margin-right: 10px; font-weight: 800;' for='" + inputType + "_choice_dropdownoptions_" + i + "'>";
 				 str += "Options:</label>";
-				 str += "<input type='text' value=\"" + isDropDownChoices.replace(/"/g, "&quot;") + "\" class='choice_dropdown' id='" + inputType + "_choice_dropdownoptions_" + i + "' onblur=\"SetFieldChoiceDD('" + inputType + "', " + i + ");\">";
+				 str += "<input type='text' value=\"" + isDropDownChoices.replace(/"/g, "&quot;") + "\" class='choice_dropdown' id='" + inputType + "_choice_dropdownoptions_" + i + "' onblur=\"SetFieldChoice2('" + inputType + "', " + i + ");\">";
 				 str += "</div>";
 				 str += "</div>";
 				 }
@@ -83,7 +86,7 @@ if (!class_exists('ITSG_GF_List_Field_Drop_Down')) {
 		})(window || {});		
 		
 		// handles the 'make drop down' checkbox and option fields
-		function SetFieldChoiceDD(inputType, index){
+		function SetFieldChoice2(inputType, index){
 			
 			var element = jQuery("#" + inputType + "_choice_selected_" + index);
 			

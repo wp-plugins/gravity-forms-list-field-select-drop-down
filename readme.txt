@@ -4,7 +4,7 @@ Donate link: http://www.itsupportguides.com/
 Tags: Gravity Forms
 Requires at least: 4.0
 Tested up to: 4.2.2
-Stable tag: 1.1
+Stable tag: 1.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,9 @@ If you want the options of 'Option 1' and 'Option 2' but want the default option
 2. Shows a list field that has drop down fields added to two columns - Title and Option.
 
 == Changelog ==
+
+= 1.2 =
+* Fix: Resolve PHP error messages - added isset( $choice["isDropDown"] ) before calling array item, and check that list field has columns before calling column data.
 
 = 1.1 =
 * Improvement: Remove blank first option to match Gravity Forms Drop Down field behaviour.
